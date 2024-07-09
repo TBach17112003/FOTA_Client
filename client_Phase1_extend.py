@@ -62,19 +62,14 @@ def get_State():
 
 # Implementation of Command Classification
 def notify_New_SW():  # func_Code = 120
-    response_Confirmation()
-    if safe_State:
-        request_flash_SW()
+    # Change LED color
+    hub.led(1)  # Assuming 1 sets the LED to a specific color
+    sleep_ms(1000)  # Wait for 1 second
+    hub.led(0)  # Reset the LED color, assuming 0 turns it off
 
-def response_Confirmation():  # func_Code = 121
-    global command
-    command = [1, 121, 0, 0, 0, 0, "xx", "xx"]
-    vcp.write(command)
-
-def request_flash_SW():
-    global command
-    command = [1, 122, 0, 0, 0, 111, "xx", "xx"]
-    vcp.write(command)  # func_Code = 122
+    # Send response back to the master
+    response_message = [1, 121, 0, 0, 0, 111, 0, 0]
+    vcp.write(bytes(response_message))
 
 def classify_Command(command):
     if command[1] == 120:
