@@ -73,7 +73,7 @@ def notify_New_SW():  # func_Code = 120
 
 def classify_Command(command):
     if command[1] == 120:
-        return notify_New_SW
+        notify_New_SW()
     return None
 
 def handle_vcp():
