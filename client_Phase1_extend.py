@@ -14,8 +14,7 @@ from hub import motion       # For current motion status on LEGO hub
 from hub import sound        # For sound adjustment of hub
 from hub import USB_VCP      # Set up USB Virtual Com Port
 from hub import BT_VCP       # Set up Bluetooth Virtual Com Port
-from utime import sleep_ms   # Import delay function                            
-import threading             # Import threading for concurrent execution
+from utime import sleep_ms, ticks_ms  # Import delay function and ticks for timing
 
 #---------------------
 
@@ -27,88 +26,86 @@ import threading             # Import threading for concurrent execution
 vcp = USB_VCP(0)
 MotorA = port.A.motor        # MotorA defines the port A of Hub
 MotorB = port.B.motor        # MotorB defines the port B of Hub
-MotorB.default(max_power = 50, stop = 2)
+MotorB.default(max_power = 50, stop=2)
 
 # Variables
 speed = 0
 degree = 0
-motor_Selector = 0 # 1: Motor A, 2: Motor B
+motor_Selector = 0  # 1: Motor A, 2: Motor B
 safe_State = True
 new_SW = False
 is_Running = False
 current_Command = None
 current_state = False
+motor_running = False
+motor_end_time = 0
 
 # Setup Command
 address = 1
 data = [0, 0, 0, 0]
 func_Code = 0
-crc = ["xx", "xx"] #cycle redundancy check
-command = [address, func_Code, data[0], data[1], data[2], data[3], crc[0], crc[1]] #each index must be in range of {0; 255}
+crc = ["xx", "xx"]  # cycle redundancy check
+command = [address, func_Code, data[0], data[1], data[2], data[3], crc[0], crc[1]]  # each index must be in range of {0; 255}
 
 # -----------------------
 
 # Setup Message
 def get_State():
-    global safe_State
+    global safe_State, motor_running
     # If either motor is running, set safe_State to False
     if MotorA.busy(1) or MotorB.busy(1):
         safe_State = False
+        motor_running = True
     else:
         safe_State = True
+        motor_running = False
 
 # Implementation of Command Classification
-def notify_New_SW(): #func_Code = 120
+def notify_New_SW():  # func_Code = 120
     response_Confirmation()
-    if safe_State == True: 
+    if safe_State:
         request_flash_SW()
 
-def response_Confirmation(): #func_Code = 121
-    global command 
+def response_Confirmation():  # func_Code = 121
+    global command
     command = [1, 121, 0, 0, 0, 0, "xx", "xx"]
     vcp.write(command)
 
 def request_flash_SW():
-    global command 
+    global command
     command = [1, 122, 0, 0, 0, 111, "xx", "xx"]
-    vcp.write(command) #func_Code = 122
+    vcp.write(command)  # func_Code = 122
 
 def classify_Command(command):
     if command[1] == 120:
         return notify_New_SW
     return None
 
-def vcp_check():
+def handle_vcp():
     global current_Command
-    while True:
-        if vcp.isconnected():
-            if vcp.any():
-                command = vcp.readline(vcp.any()).strip()
-                sleep_ms(1000)
-                current_Command = classify_Command(command)
-                sleep_ms(1000)
-        sleep_ms(1000)
+    if vcp.isconnected():
+        if vcp.any():
+            command = vcp.read(vcp.any()).strip()
+            current_Command = classify_Command(command)
 
 def run_motor():
-    global safe_State
-    while True:
-        get_State()
-        if not safe_State:
-            MotorB.run_for_time(3000, speed=-50)
-        sleep_ms(1000)
-
-# Create and start threads
-vcp_thread = threading.Thread(target=vcp_check)
-motor_thread = threading.Thread(target=run_motor)
-
-vcp_thread.start()
-motor_thread.start()
+    global motor_running, motor_end_time
+    if not motor_running:
+        MotorB.run_for_time(3000, speed=-50)
+        motor_running = True
+        motor_end_time = ticks_ms() + 3000  # Set the motor end time
 
 # Main loop
 while True:
+    handle_vcp()
     if current_Command:
         current_Command()
-        sleep_ms(1000)
         current_Command = None
-        sleep_ms(100)
-    sleep_ms(1000)
+    get_State()
+    if not safe_State:
+        run_motor()
+    else:
+        # Check if the motor running time has ended
+        if motor_running and ticks_ms() >= motor_end_time:
+            motor_running = False
+    sleep_ms(100)
