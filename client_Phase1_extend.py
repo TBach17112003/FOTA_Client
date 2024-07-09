@@ -73,8 +73,7 @@ def notify_New_SW():  # func_Code = 120
 
 def classify_Command(command):
     if command[1] == 120:
-        notify_New_SW()
-    return None
+        return notify_New_SW
 
 def handle_vcp():
     global current_Command
@@ -95,6 +94,7 @@ while True:
     handle_vcp()
     if current_Command:
         current_Command()
+        sleep_ms(1000)
         current_Command = None
     get_State()
     if not safe_State:
