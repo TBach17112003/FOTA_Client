@@ -32,7 +32,7 @@ MotorB.default(max_power = 50, stop=2)
 speed = 0
 degree = 0
 motor_Selector = 0  # 1: Motor A, 2: Motor B
-safe_State = True
+safe_State = False
 new_SW = False
 is_Running = False
 current_Command = None
@@ -78,7 +78,7 @@ def classify_Command(command):
 def handle_vcp():
     if vcp.isconnected():
         if vcp.any():
-            command = vcp.read(vcp.any()).strip()
+            command = vcp.readline(vcp.any()).strip()
             classify_Command(command)
 
 def run_motor():
