@@ -73,14 +73,13 @@ def notify_New_SW():  # func_Code = 120
 
 def classify_Command(command):
     if command[1] == 120:
-        return notify_New_SW
+        notify_New_SW()
 
 def handle_vcp():
-    global current_Command
     if vcp.isconnected():
         if vcp.any():
             command = vcp.read(vcp.any()).strip()
-            current_Command = classify_Command(command)
+            classify_Command(command)
 
 def run_motor():
     global motor_running, motor_end_time
@@ -92,10 +91,6 @@ def run_motor():
 # Main loop
 while True:
     handle_vcp()
-    if current_Command:
-        current_Command()
-        sleep_ms(1000)
-        current_Command = None
     get_State()
     if not safe_State:
         run_motor()
