@@ -17,7 +17,8 @@ def read_message():
                 end_bit = ser.read(1)
                 if end_bit == b'\x03':  # Check if the end bit is correct
                     # Process the message
-                    address, func_code, data1, data2, data3, data4, crc1, crc2, crc3 = message
+                    message_data = list(message)
+                    address, func_code, data1, data2, data3, data4, crc1, crc2, crc3 = message_data
                     print(f"Received message: {address}, {func_code}, {data1}, {data2}, {data3}, {data4}, {crc1}, {crc2}, {crc3}")
                 else:
                     print("End bit incorrect, message discarded")
@@ -31,4 +32,3 @@ try:
 except KeyboardInterrupt:
     ser.close()
     print("Serial port closed")
-
