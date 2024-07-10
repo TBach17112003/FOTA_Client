@@ -77,17 +77,21 @@ def response_Confirmation():  # func_Code = 121
     end_bit = 3
     response_message = [start_bit, 1, 121, 0, 0, 0, 111, 0, 0, end_bit]
     vcp.write(bytes(response_message))
+    sleep_ms(100)
 
 def classify_Command(command):
     if command[1] == 120:
         notify_New_SW()
+        sleep_ms(100)
 
 def handle_vcp():
     global current_Command
     if vcp.isconnected():
         if vcp.any():
             command = vcp.read(vcp.any()).strip()
-            current_Command = classify_Command(command)
+            sleep_ms(100)
+            classify_Command(command)
+            sleep_ms(100)
 
 def run_motor():
     global motor_running, motor_end_time
@@ -95,10 +99,12 @@ def run_motor():
         MotorB.run_for_time(3000, speed=-50)
         motor_running = True
         motor_end_time = ticks_ms() + 3000  # Set the motor end time
+        sleep_ms(500)
 
 # Main loop
 while True:
     handle_vcp()
+    sleep_ms(100)
     get_State()
     if not safe_State:
         run_motor()
