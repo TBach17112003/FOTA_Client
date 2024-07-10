@@ -80,8 +80,7 @@ def response_Confirmation():  # func_Code = 121
 
 def classify_Command(command):
     if command[1] == 120:
-        return notify_New_SW
-    return None
+        notify_New_SW()
 
 def handle_vcp():
     global current_Command
@@ -100,9 +99,6 @@ def run_motor():
 # Main loop
 while True:
     handle_vcp()
-    if current_Command:
-        current_Command()
-        current_Command = None
     get_State()
     if not safe_State:
         run_motor()
