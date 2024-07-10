@@ -32,7 +32,7 @@ MotorB.default(max_power = 50, stop=2)
 speed = 0
 degree = 0
 motor_Selector = 0  # 1: Motor A, 2: Motor B
-safe_State = False
+safe_State = True
 new_SW = False
 is_Running = False
 current_Command = None
@@ -68,18 +68,27 @@ def notify_New_SW():  # func_Code = 120
     hub.led(0)  # Reset the LED color, assuming 0 turns it off
 
     # Send response back to the master
-    response_message = [1, 121, 0, 0, 0, 111, 0, 0]
+    response_Confirmation()
+
+def response_Confirmation():  # func_Code = 121
+    global command
+    # Construct the message with start and end bits
+    start_bit = 0x02
+    end_bit = 0x03
+    response_message = [start_bit, 1, 121, 0, 0, 0, 111, 0, 0, end_bit]
     vcp.write(bytes(response_message))
 
 def classify_Command(command):
     if command[1] == 120:
-        notify_New_SW()
+        return notify_New_SW
+    return None
 
 def handle_vcp():
+    global current_Command
     if vcp.isconnected():
         if vcp.any():
-            command = vcp.readline(vcp.any()).strip()
-            classify_Command(command)
+            command = vcp.read(vcp.any()).strip()
+            current_Command = classify_Command(command)
 
 def run_motor():
     global motor_running, motor_end_time
@@ -91,6 +100,9 @@ def run_motor():
 # Main loop
 while True:
     handle_vcp()
+    if current_Command:
+        current_Command()
+        current_Command = None
     get_State()
     if not safe_State:
         run_motor()
