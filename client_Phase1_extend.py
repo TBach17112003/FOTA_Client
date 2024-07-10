@@ -1,8 +1,6 @@
 # LEGO type:standard slot:0 autostart
 # DO NOT CHANGE LINE ABOVE
 
-#-----------------------
-
 # Import library, framework
 import hub
 from hub import port         # Port module to set / get Port from LEGO hub
@@ -16,8 +14,6 @@ from hub import USB_VCP      # Set up USB Virtual Com Port
 from hub import BT_VCP       # Set up Bluetooth Virtual Com Port
 from utime import sleep_ms, ticks_ms  # Import delay function and ticks for timing
 
-#---------------------
-
 # Port Description:
 # A: Front Right, Front Left Wheel
 # B: Rear Right, Rear Left Wheel
@@ -26,7 +22,7 @@ from utime import sleep_ms, ticks_ms  # Import delay function and ticks for timi
 vcp = USB_VCP(0)
 MotorA = port.A.motor        # MotorA defines the port A of Hub
 MotorB = port.B.motor        # MotorB defines the port B of Hub
-MotorB.default(max_power = 50, stop=2)
+MotorB.default(max_power=50, stop=2)
 
 # Variables
 speed = 0
@@ -46,8 +42,6 @@ data = [0, 0, 0, 0]
 func_Code = 0
 crc = ["xx", "xx"]  # cycle redundancy check
 command = [address, func_Code, data[0], data[1], data[2], data[3], crc[0], crc[1]]  # each index must be in range of {0; 255}
-
-# -----------------------
 
 # Setup Message
 def get_State():
@@ -76,7 +70,8 @@ def response_Confirmation():  # func_Code = 121
     start_bit = 2
     end_bit = 3
     response_message = [start_bit, 1, 121, 0, 0, 0, 111, 0, 0, end_bit]
-    vcp.write(bytes(response_message))
+    print(f"Sending message: {response_message}")
+    vcp.write(bytearray(response_message))
     sleep_ms(100)
 
 def classify_Command(command):
@@ -85,7 +80,6 @@ def classify_Command(command):
         sleep_ms(100)
 
 def handle_vcp():
-    global current_Command
     if vcp.isconnected():
         if vcp.any():
             command = vcp.read(vcp.any()).strip()
