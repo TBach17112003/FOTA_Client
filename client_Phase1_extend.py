@@ -73,8 +73,8 @@ def notify_New_SW():  # func_Code = 120
 def response_Confirmation():  # func_Code = 121
     global command
     # Construct the message with start and end bits
-    start_bit = 0x02
-    end_bit = 0x03
+    start_bit = 2
+    end_bit = 3
     response_message = [start_bit, 1, 121, 0, 0, 0, 111, 0, 0, end_bit]
     vcp.write(bytes(response_message))
 
