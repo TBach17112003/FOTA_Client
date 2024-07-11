@@ -56,23 +56,23 @@ def request_flash_SW(vcp):
     message = bytes([35, 1, 122, 0, 0, 0, 111, 0, 0])
     vcp.write(message)
     sleep_ms(100)
-    vcp.close()
 
 def classify_Command(command):
     if command[1] == 120:
-        response_Confirmation()
+        response_Confirmation(vcp)
     elif command[1] == 123:
-        response_Flash_Status()
+        response_Flash_Status(vcp)
 
-def handle_VCP(vcp):
-    
+def handle_VCP():
+    vcp = USB_VCP(0)
+    vcp.setinterrupt(3)
     if vcp.isconnected():  
         # vcp.CTS
         if vcp.any():
             # data = vcp.recv(8, 1000)
             command = vcp.readline(vcp.any()).strip()
             sleep_ms(100)
-            classify_Command(command)
+            classify_Command(command, vcp)
             sleep_ms(100)
 
 def run_motor():
@@ -84,10 +84,10 @@ def run_motor():
     motor_end_time = motor_start_time + 5000  # Set the motor end time to 5 seconds after start
 
 def main():
-    vcp = USB_VCP(0)
-    vcp.setinterrupt(3)
-    current_time = ticks_ms()
+    global motor_running, safe_State, current_time, motor_end_time
+    
     while True:
+        current_time = ticks_ms()
         if not motor_running:
             run_motor()
             safe_State = False 
@@ -99,5 +99,9 @@ def main():
                 # Turn to safe state and wait for 2 seconds
                 safe_State = True
                 sleep_ms(2000)
+        get_State()
+        handle_VCP()
+        
     sleep_ms(50)
+
 main()
