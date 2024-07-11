@@ -56,6 +56,7 @@ def request_flash_SW(vcp):
     message = bytes([35, 1, 122, 0, 0, 0, 111, 0, 0])
     vcp.write(message)
     sleep_ms(100)
+    vcp.close()
 
 def classify_Command(command):
     if command[1] == 120:
