@@ -1,5 +1,4 @@
-# LEGO type:standard slot:1 autostart
-# DO NOT CHANGE LINE ABOVE
+
 import hub
 from hub import port         # Port module to set / get Port from LEGO hub
 from hub import display      # Display module to control LEGO hub Display Screen
