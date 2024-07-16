@@ -37,7 +37,6 @@ def request_Flash_SW():
     hub.led(8)
     sleep_ms(50)
     vcp.write(message)
-    print("Here")
     sleep_ms(100)
     # req = True
     # print("Here")
@@ -110,8 +109,8 @@ def run_motor():
     MotorB.run_at_speed(-50)  # Run the motor at a constant speed
     motor_start_time = ticks_ms()  # Record the start time of motor running
     motor_running = True
-    motor_end_time = motor_start_time + 500  # Set the motor end time to 5 seconds after start
-    safe_period = motor_end_time + 500
+    motor_end_time = motor_start_time + 3000  # Set the motor end time to 5 seconds after start
+    safe_period = motor_end_time + 2000
 
 while True:
     
