@@ -9,3 +9,5 @@ Functions:
   + Run, steer motor based on command from Pyboard
   + UART Communication with Pyboard for flashing SW automatically
 
+
+I am the owner for 2/4 main components of the Project, there are other componets which is taken by my other team members
