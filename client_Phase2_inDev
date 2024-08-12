@@ -271,14 +271,16 @@ while (True):
     current_time = ticks_ms()
     
     # Check if 10 milliseconds have passed
-    # if current_time - last_sensor_send >= sensor_end_time:
-    #     # Update the start time
-    #     last_sensor_send = current_time
+    if current_time - last_sensor_send >= sensor_end_time:
+        # Update the start time
+        last_sensor_send = current_time
 
         # Print the current time
         # Print sensor data
-    send_IMU_Sensor()
-   
+        send_IMU_Sensor()
+        
+
+        
 
     # Check if 1 seconds have passed
     if current_time - last_hub_send >= hub_end_time:
